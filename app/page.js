@@ -23,8 +23,10 @@ function Pokedex() {
   // Sync state page -> URL
   useEffect(() => {
     const currentParams = new URLSearchParams(searchParams.toString());
-    currentParams.set("page", page.toString());
-    router.replace(`?${currentParams.toString()}`);
+    if (currentParams.get("page") !== page.toString()) {
+      currentParams.set("page", page.toString());
+      router.replace(`?${currentParams.toString()}`);
+    }
   }, [page, router, searchParams]);
 
   // Fetch a page of Pokémon every time the page number changes.

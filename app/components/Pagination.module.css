@@ -1,0 +1,49 @@
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.button {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.buttonNext {
+  background-color: #ef5350;
+  color: #fff;
+}
+
+.buttonNext:hover {
+  background-color: #e53935;
+}
+
+.buttonPrev {
+  background-color: #ef5350;
+  color: #fff;
+}
+
+.buttonPrev:hover {
+  background-color: #e53935;
+}
+
+.buttonDisabled {
+  background-color: #eee;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.buttonDisabled:hover {
+  background-color: #eee;
+}
+
+.pageInfo {
+  font-weight: 700;
+  font-size: 15px;
+}

@@ -1,7 +1,7 @@
 // Small helper module for talking to the PokéAPI.
 
 // Base endpoint for the list of Pokémon.
-export const POKE_API = "https://pokeapi.co/api/v2/pokemons";
+export const POKE_API = "https://pokeapi.co/api/v2/pokemon";
 
 // How many Pokémon we show per page.
 export const PAGE_SIZE = 20;

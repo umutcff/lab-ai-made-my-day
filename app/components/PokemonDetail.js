@@ -19,21 +19,11 @@ export default function PokemonDetail({ pokemon, onClose }) {
   }, [pokemon]);
 
   const id = getPokemonId(pokemon.url);
+  const paddedId = String(id).padStart(3, "0");
 
   return (
     <div className={styles.overlay} onClick={onClose}>
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          position: "relative",
-          backgroundColor: "#fff",
-          borderRadius: "16px",
-          padding: "32px",
-          width: "100%",
-          maxWidth: "420px",
-          textAlign: "center",
-        }}
-      >
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <button className={styles.closeButton} onClick={onClose}>
           ×
         </button>
@@ -41,69 +31,56 @@ export default function PokemonDetail({ pokemon, onClose }) {
         <img
           src={getPokemonImage(id)}
           alt={pokemon.name}
-          style={{ width: "180px", height: "180px", objectFit: "contain" }}
+          className={styles.image}
         />
 
-        <h2
-          style={{
-            textTransform: "capitalize",
-            fontSize: "26px",
-            margin: "8px 0 4px",
-          }}
-        >
-          {pokemon.name}
-        </h2>
-        <p style={{ color: "#9aa0a6", fontWeight: 600 }}>#{id}</p>
+        <h2 className={styles.title}>{pokemon.name}</h2>
+        <p className={styles.id}>#{paddedId}</p>
 
         {!details ? (
-          <p style={{ marginTop: "20px" }}>Loading details…</p>
+          <div className={`${styles.detailsContainer} ${styles.skeleton}`}>
+            <div className={styles.skeletonTypes}>
+              <div className={styles.skeletonType} />
+              <div className={styles.skeletonType} />
+            </div>
+            <div className={styles.skeletonText} />
+            <div className={styles.skeletonText} />
+            <h3 className={styles.statsTitle}>Base stats</h3>
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className={styles.skeletonStatRow}>
+                <div className={styles.skeletonStatName} />
+                <div className={styles.skeletonStatValue} />
+              </div>
+            ))}
+          </div>
         ) : (
-          <div style={{ marginTop: "16px", textAlign: "left" }}>
-            <div
-              style={{
-                display: "flex",
-                gap: "8px",
-                justifyContent: "center",
-                marginBottom: "16px",
-              }}
-            >
-              {details.types.map((t) => (
-                <span
-                  key={t.type.name}
-                  style={{
-                    backgroundColor: "#ef5350",
-                    color: "#fff",
-                    padding: "4px 12px",
-                    borderRadius: "999px",
-                    fontSize: "13px",
-                    textTransform: "capitalize",
-                  }}
-                >
-                  {t.type.name}
-                </span>
-              ))}
+          <div className={styles.detailsContainer}>
+            <div className={styles.typesContainer}>
+              {details.types.map((t) => {
+                const typeClass = styles[`type-${t.type.name}`] || styles["type-normal"];
+                return (
+                  <span
+                    key={t.type.name}
+                    className={`${styles.typeBadge} ${typeClass}`}
+                  >
+                    {t.type.name}
+                  </span>
+                );
+              })}
             </div>
 
-            <p style={{ margin: "4px 0" }}>
+            <p className={styles.infoRow}>
               <strong>Height:</strong> {details.height / 10} m
             </p>
-            <p style={{ margin: "4px 0" }}>
+            <p className={styles.infoRow}>
               <strong>Weight:</strong> {details.weight / 10} kg
             </p>
 
-            <h3 style={{ marginTop: "16px", marginBottom: "8px" }}>Base stats</h3>
+            <h3 className={styles.statsTitle}>Base stats</h3>
             {details.stats.map((s) => (
-              <div
-                key={s.stat.name}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontSize: "14px",
-                  padding: "2px 0",
-                }}
-              >
-                <span style={{ textTransform: "capitalize" }}>{s.stat.name}</span>
-                <span style={{ fontWeight: 700 }}>{s.base_stat}</span>
+              <div key={s.stat.name} className={styles.statRow}>
+                <span className={styles.statName}>{s.stat.name}</span>
+                <span className={styles.statValue}>{s.base_stat}</span>
               </div>
             ))}
           </div>

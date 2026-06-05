@@ -1,18 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { POKE_API, PAGE_SIZE } from "./lib/pokeapi";
 import PokemonCard from "./components/PokemonCard";
 import PokemonDetail from "./components/PokemonDetail";
 import Pagination from "./components/Pagination";
 import styles from "./page.module.css";
 
-export default function Home() {
+function Pokedex() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  const initialPage = parseInt(searchParams.get("page") || "1", 10);
+  const [page, setPage] = useState(initialPage);
+  const [search, setSearch] = useState("");
   const [pokemon, setPokemon] = useState([]);
-  const [page, setPage] = useState(1);
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Sync state page -> URL
+  useEffect(() => {
+    const currentParams = new URLSearchParams(searchParams.toString());
+    currentParams.set("page", page.toString());
+    router.replace(`?${currentParams.toString()}`);
+  }, [page, router, searchParams]);
 
   // Fetch a page of Pokémon every time the page number changes.
   useEffect(() => {
@@ -40,45 +53,48 @@ export default function Home() {
     loadPokemon();
   }, [page]);
 
+  const filteredPokemon = pokemon.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className={styles.page}>
-      <header style={{ textAlign: "center", marginBottom: "32px" }}>
-        <h1 style={{ fontSize: "32px", fontWeight: 700, color: "#ef5350" }}>
-          Pokédex
-        </h1>
-        <p style={{ color: "#666", marginTop: "4px" }}>
-          Click on a Pokémon to see its details.
-        </p>
+      <header className={styles.header}>
+        <h1 className={styles.title}>Pokédex</h1>
+        <p className={styles.subtitle}>Click on a Pokémon to see its details.</p>
       </header>
 
-      {loading && (
-        <p style={{ textAlign: "center", padding: "40px" }}>Loading Pokémon…</p>
-      )}
+      <div className={styles.controls}>
+        <input
+          type="text"
+          placeholder="Filter current page..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className={styles.searchInput}
+        />
+      </div>
 
       {error && (
-        <div
-          style={{
-            backgroundColor: "#fdecea",
-            border: "1px solid #f5c6cb",
-            color: "#b71c1c",
-            padding: "16px",
-            borderRadius: "8px",
-            textAlign: "center",
-            maxWidth: "480px",
-            margin: "0 auto",
-          }}
-        >
+        <div className={styles.errorBox}>
           <strong>Oops! We couldn&apos;t load the Pokémon.</strong>
-          <p style={{ marginTop: "4px", fontSize: "14px" }}>{error}</p>
+          <p className={styles.errorMessage}>{error}</p>
         </div>
       )}
 
-      {!loading && !error && (
+      {!error && (
         <>
           <div className={styles.grid}>
-            {pokemon.map((p) => (
-              <PokemonCard key={p.name} pokemon={p} onSelect={setSelected} />
-            ))}
+            {loading
+              ? Array.from({ length: PAGE_SIZE }).map((_, i) => (
+                  <div key={i} className={styles.skeletonCard}>
+                    <div className={styles.skeletonImage} />
+                    <div className={styles.skeletonId} />
+                    <div className={styles.skeletonName} />
+                  </div>
+                ))
+              : filteredPokemon.map((p) => (
+                  <PokemonCard key={p.name} pokemon={p} onSelect={setSelected} />
+                ))}
           </div>
 
           <Pagination
@@ -93,5 +109,13 @@ export default function Home() {
         <PokemonDetail pokemon={selected} onClose={() => setSelected(null)} />
       )}
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className={styles.message}>Loading...</div>}>
+      <Pokedex />
+    </Suspense>
   );
 }
